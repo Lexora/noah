@@ -1,0 +1,26 @@
+accel = [acc_x acc_y acc_z];
+gyro = [gyro_x gyro_y gyro_z];
+
+
+ax = atan( accel(2)/sqrt( accel(1)^2 + accel(3)^2  ) );
+angle_x = (0.80)*(angle_x + gyro(1)*dt) + (0.2*ax);
+
+
+ay = atan( -accel(1)/ sqrt( accel(2)^2 + accel(3)^2  ) );
+angle_y = (0.7)*(angle_y + gyro(2)*dt) + (0.3*ay);
+
+
+x_mag_prev = x_mag;
+y_mag_prev = y_mag;
+
+x_mag=height*sin(angle_x); 
+y_mag=height*sin(angle_y); 
+
+calc = sqrt( (x_mag - x_mag_prev)^2 + (y_mag - y_mag_prev)^2);
+
+if (  calc  > 0.1  ) 
+    p_length = p_length +  calc;
+end
+
+
+
