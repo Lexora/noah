@@ -1,0 +1,82 @@
+%this matlab script hold the data processing as left by Omar
+
+
+
+%Beggining of code 
+
+
+if (processEnable)
+addpath(folder2);
+% directory TO MATCH YOUR COMPUTER (3 changes!)
+FileList = dir([folder2, '*.lvm']);
+N = size(FileList,1);
+
+if ~isempty(FileList)
+
+for k = 1:N
+   filename = FileList(k).name;   % get the file name:
+   
+   data(k) = lvm_import(filename,0);
+
+  % eval(['DAT' num2str(k) ]) = lvm_import(filename,0);
+end
+
+%%
+%Path Length Central Acceloremeter
+Length=size(data(1).Segment1.data(:,2));%Second Column is Pathlength
+PathlengthCentral=data(1).Segment1.data(Length(1),2);%Last Value of Each Trial
+
+
+
+%%
+%.....................RMS Central Acceloremeter............................
+
+% Calculating Mean of Acceleration
+Y_mean1=mean(abs(data(1).Segment1.data(:,6)));%Acceleration in Y-Direction MPU1
+Y_mean2=mean(abs(data(2).Segment1.data(:,6)));%Acceleration in Y-Direction MPU2
+
+Z_mean1=mean(abs(data(1).Segment1.data(:,7)));%Acceleration in Z-Direction MPU1
+Z_mean2=mean(abs(data(2).Segment1.data(:,7)));%Acceleration in Z-Direction MPU2
+
+% RMS Calculation
+RMS1=sqrt(Y_mean1^2+Z_mean1^2);
+RMS2=sqrt(Y_mean2^2+Z_mean2^2);
+
+%%
+% Create or Open file for the patient and test, depending if file already
+% exists
+info = [RMS1 RMS2 PathlengthCentral];
+
+filename = data(1).Segment1.Comment;
+filename = [filename, '.txt'];
+file = fopen(fullfile(folder2, filename), 'r');
+
+
+% Check if the file exists
+if (file ~= -1)
+    dlmwrite(fullfile(folder2, filename), info, '-append', 'delimiter', '\t'); 
+else
+    headers = {'RMS1','RMS2','Pathlength'};
+    txt=sprintf('%s\t',headers{:});
+    txt(end)='';
+    dlmwrite(fullfile(folder2, filename), txt, '');
+    dlmwrite(fullfile(folder2, filename), info, '-append', 'delimiter', '\t');
+end
+
+end 
+
+fclose('all')
+processEnable = 0;
+
+end
+
+
+
+
+
+% end of file
+
+
+
+
+
